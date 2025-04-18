@@ -1,0 +1,33 @@
+# Node.js dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Environment variables
+.env
+
+# AWS credentials
+.aws/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Output files
+*.zip
+*.tar
+*.gz
+
+# S3 configuration backups
+websites.json.bak

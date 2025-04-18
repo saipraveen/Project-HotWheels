@@ -1,0 +1,15 @@
+{
+  "name": "project-hotwheels",
+  "version": "1.0.0",
+  "description": "Web scraping and S3 configuration upload solution for Hot Wheels products.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "upload-config": "node uploadToS3.js"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1356.0",
+    "axios": "^1.3.4",
+    "cheerio": "^1.0.0-rc.12"
+  }
+}

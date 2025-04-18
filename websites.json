@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Karz and Dolls",
+    "url": "https://www.karzanddolls.com/",
+    "fileKey": "karzanddolls-data.json"
+  },
+  {
+    "name": "Toy Marche",
+    "url": "https://www.toymarche.com/",
+    "fileKey": "toymarche-data.json"
+  },
+  {
+    "name": "Toys India",
+    "url": "https://toys-india.com/",
+    "fileKey": "toysindia-data.json"
+  }
+]
