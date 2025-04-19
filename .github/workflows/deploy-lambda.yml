@@ -1,0 +1,80 @@
+name: Deploy Lambda Container to AWS
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: ap-south-2
+  ECR_REPOSITORY: hotwheels-scraper
+  IMAGE_TAG: ${{ github.run_number }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.0
+
+    - name: Format Terraform Files
+      run: |
+        terraform fmt -recursive
+
+    - name: Initialize Terraform
+      run: terraform init
+
+    - name: Create Initial Infrastructure
+      run: |
+        # Create S3 bucket and ECR repository first
+        terraform apply -auto-approve -target=aws_s3_bucket.hotwheels_bucket -target=aws_ecr_repository.lambda_ecr_repo
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Upload websites.json to S3
+      run: node uploadToS3.js
+      env:
+        BUCKET_NAME: hotwheels-scraper-bucket
+        FILE_PATH: websites.json
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+      with:
+        mask-password: true
+
+    - name: Build and push container image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        echo $IMAGE_TAG > image_tag.txt
+
+    - name: Plan Infrastructure Changes
+      run: |
+        export TF_VAR_lambda_image_tag=$(cat image_tag.txt)
+        terraform plan -out=tfplan
+
+    - name: Apply Infrastructure Changes
+      run: |
+        terraform apply -auto-approve tfplan

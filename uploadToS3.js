@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration
-const BUCKET_NAME = 'your-s3-bucket-name'; // Replace with your bucket name
-const FILE_PATH = path.join(__dirname, 'websites.json'); // Path to the JSON file
+const BUCKET_NAME = process.env.BUCKET_NAME || 'default-bucket-name'; // Use environment variable or default
+const FILE_PATH = path.join(__dirname, process.env.FILE_PATH || 'websites.json'); // Use environment variable or default
 const FILE_KEY = 'websites.json'; // Key to store the file in S3
 
 // Initialize S3 client
